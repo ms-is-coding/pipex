@@ -6,7 +6,7 @@
 /*   By: smamalig <smamalig@student.42.fr>                 ⠀⣴⣿⣟⣁⣀⣀⣀⡀⠀⣴⣿⡟⠁⢀⠀   */
 /*                                                         ⠀⠿⠿⠿⠿⠿⣿⣿⡇⠀⣿⣿⣇⣴⣿⠀   */
 /*   Created: 2025/06/06 22:15:52 by smamalig              ⠀⠀⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀   */
-/*   Updated: 2025/06/06 22:18:14 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
+/*   Updated: 2025/06/08 14:52:46 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,13 @@
 
 int	pipex_invalid_env(char *name)
 {
-	ft_printf("%s: Error: Missing PATH variable\n", name);
+	ft_dprintf(2, "%s: Error: Missing PATH variable\n", name);
 	return (1);
 }
 
 int	pipex_init_failure(char *name)
 {
-	ft_printf("%s: Error: Could not initialize\n", name);
+	ft_dprintf(2, "%s: Error: Could not initialize\n", name);
 	return (1);
 }
 
@@ -37,8 +37,8 @@ int	pipex_read_error(t_pipex *pipex, char *file)
 	return (1);
 }
 
-int	pipex_usage_error(char *name)
+int	pipex_write_error(t_pipex *pipex, char *file)
 {
-	ft_printf("%s: Error: Incorrect usage\n", name);
+	ft_dprintf(2, "%s: %s: Could not open for writing\n", pipex->name, file);
 	return (1);
 }
