@@ -6,25 +6,30 @@
 /*   By: smamalig <smamalig@student.42.fr>                 ⠀⣴⣿⣟⣁⣀⣀⣀⡀⠀⣴⣿⡟⠁⢀⠀   */
 /*                                                         ⠀⠿⠿⠿⠿⠿⣿⣿⡇⠀⣿⣿⣇⣴⣿⠀   */
 /*   Created: 2025/06/06 22:18:50 by smamalig              ⠀⠀⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀   */
-/*   Updated: 2025/06/08 14:53:23 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
+/*   Updated: 2025/06/08 15:31:03 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 #include "libft.h"
+#include <stdlib.h>
 #include <unistd.h>
 
 char	*pipex_get_bin(t_pipex *pipex, char *arg)
 {
-	char	buffer[1024];
+	char	*path;
 	int		i;
+	size_t	len;
 
 	i = -1;
 	while (pipex->path[++i])
 	{
-		ft_snprintf(buffer, 1024, "%s/%s", pipex->path[i], arg);
-		if (access(buffer, X_OK) == 0)
-			return (ft_strdup(buffer));
+		len = ft_strlen(pipex->path[i]) + ft_strlen(arg) + 2;
+		path = malloc(len);
+		ft_snprintf(path, 1024, "%s/%s", pipex->path[i], arg);
+		if (access(path, X_OK) == 0)
+			return (ft_strdup(path));
+		free(path);
 	}
 	return (NULL);
 }
