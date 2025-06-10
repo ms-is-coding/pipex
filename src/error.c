@@ -6,7 +6,7 @@
 /*   By: smamalig <smamalig@student.42.fr>                 ⠀⣴⣿⣟⣁⣀⣀⣀⡀⠀⣴⣿⡟⠁⢀⠀   */
 /*                                                         ⠀⠿⠿⠿⠿⠿⣿⣿⡇⠀⣿⣿⣇⣴⣿⠀   */
 /*   Created: 2025/06/06 22:15:52 by smamalig              ⠀⠀⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀   */
-/*   Updated: 2025/06/08 14:52:46 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
+/*   Updated: 2025/06/08 18:24:03 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,14 +31,8 @@ int	pipex_argument_error(t_pipex *pipex, char *arg)
 	return (1);
 }
 
-int	pipex_read_error(t_pipex *pipex, char *file)
+int	pipex_perror(t_pipex *pipex, char *file)
 {
-	ft_dprintf(2, "%s: %s: Could not open for reading\n", pipex->name, file);
-	return (1);
-}
-
-int	pipex_write_error(t_pipex *pipex, char *file)
-{
-	ft_dprintf(2, "%s: %s: Could not open for writing\n", pipex->name, file);
+	ft_dprintf(2, "%s: %s: %m\n", pipex->name, file);
 	return (1);
 }

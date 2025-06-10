@@ -6,7 +6,7 @@
 /*   By: smamalig <smamalig@student.42.fr>                 ⠀⣴⣿⣟⣁⣀⣀⣀⡀⠀⣴⣿⡟⠁⢀⠀   */
 /*                                                         ⠀⠿⠿⠿⠿⠿⣿⣿⡇⠀⣿⣿⣇⣴⣿⠀   */
 /*   Created: 2025/06/06 19:16:02 by smamalig              ⠀⠀⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀   */
-/*   Updated: 2025/06/06 22:12:02 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
+/*   Updated: 2025/06/09 15:47:46 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,13 +26,30 @@ static int	alloc_sub(const char *s, const char *start, int i, char **collector)
 	return (0);
 }
 
-char	quote_lookup(char curr, char quote)
+static inline char	quote_lookup(char curr, char quote)
 {
-	if (curr != '\'' && curr != '\"')
-		return (quote);
-	if (quote == curr)
+	if (quote == '\'' && curr == '\'')
 		return (0);
-	return (curr);
+	if (quote == '"' && curr == '"')
+		return (0);
+	if (!quote && (curr == '"' || curr == '\''))
+		return (curr);
+	return (quote);
+}
+
+static inline int	should_start(char *s)
+{
+	if (s[0] == ' ')
+		return (-1);
+	if (s[0] == '"' && s[1] != '"')
+		return (-1);
+	if (s[0] == '\'' && s[1] != '\'')
+		return (-1);
+	if (s[0] == '"' && s[1] == '"')
+		return (1);
+	if (s[0] == '\'' && s[1] == '\'')
+		return (1);
+	return (0);
 }
 
 int	pipex_tokenize(char *s, char **collector)
@@ -46,9 +63,9 @@ int	pipex_tokenize(char *s, char **collector)
 	quote = 0;
 	while (1)
 	{
-		if (*s != ' ' && !start)
-			start = s;
-		else if (start && !quote && (*s == ' ' || !*s))
+		if (should_start(s) != -1 && !start)
+			start = s + should_start(s);
+		else if (start && ((!quote && (*s == ' ' || !*s)) || *s == quote))
 		{
 			alloc_sub(s, start, count, collector);
 			count++;
