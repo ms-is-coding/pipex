@@ -6,7 +6,7 @@
 /*   By: smamalig <smamalig@student.42.fr>                 ⠀⣴⣿⣟⣁⣀⣀⣀⡀⠀⣴⣿⡟⠁⢀⠀   */
 /*                                                         ⠀⠿⠿⠿⠿⠿⣿⣿⡇⠀⣿⣿⣇⣴⣿⠀   */
 /*   Created: 2025/06/07 07:53:15 by smamalig              ⠀⠀⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀   */
-/*   Updated: 2025/06/09 15:47:22 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
+/*   Updated: 2025/06/10 19:21:16 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ static void	pipex_dup_io(t_pipex *pipex, int i, int prev_fd, int pipefd[2])
 	{
 		dup2(pipex->fd_out, STDOUT_FILENO);
 		close(pipex->fd_out);
-		close(pipefd[1]);
 	}
 	else
 	{
@@ -64,13 +63,11 @@ static int	pipex_spawn(t_pipex *pipex, int i, int prev_fd)
 		pipex_child(pipex, i, prev_fd, pipefd);
 	if (prev_fd != -1)
 		close(prev_fd);
-	close(pipefd[1]);
-	return (pipefd[0]);
-	// if (i < pipex->node_count - 1)
-	// {
-	// 	close(pipefd[1]);
-	// 	return (pipefd[0]);
-	// }
+	if (i < pipex->node_count - 1)
+	{
+		close(pipefd[1]);
+		return (pipefd[0]);
+	}
 	return (-1);
 }
 
@@ -90,5 +87,7 @@ int	pipex_exec(t_pipex *pipex)
 	i = -1;
 	while (++i < pipex->node_count)
 		wait(NULL);
+	close(pipex->fd_in);
+	close(pipex->fd_out);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: smamalig <smamalig@student.42.fr>                 ⠀⣴⣿⣟⣁⣀⣀⣀⡀⠀⣴⣿⡟⠁⢀⠀   */
 /*                                                         ⠀⠿⠿⠿⠿⠿⣿⣿⡇⠀⣿⣿⣇⣴⣿⠀   */
 /*   Created: 2025/06/06 22:18:50 by smamalig              ⠀⠀⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀   */
-/*   Updated: 2025/06/09 20:22:47 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
+/*   Updated: 2025/06/10 19:26:06 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
 
 int	pipex_open_files(t_pipex *pipex, int argc, char **argv)
 {
@@ -60,6 +61,7 @@ int	pipex_expand_home(t_pipex *pipex, char **argv)
 {
 	char	*tmp;
 	int		len;
+
 	if (!pipex->home)
 		return (0);
 	while (*argv)
@@ -89,8 +91,6 @@ int	pipex_parse_exec(t_pipex *pipex, char *arg, char **name)
 	exec = pipex->nodes + pipex->node_count++;
 	exec->argv = ft_calloc(pipex_tokenize(arg, NULL), sizeof(char *));
 	pipex_tokenize(arg, exec->argv);
-	for (int i = 0; exec->argv[i]; i++)
-		ft_dprintf(2, "- [%s]\n", exec->argv[i]);
 	if (!exec->argv[0])
 	{
 		free(exec->argv);
@@ -120,9 +120,9 @@ int	pipex_parse_arguments(t_pipex *pipex, int argc, char **argv)
 	while (++i < argc - 1)
 	{
 		if (pipex_parse_exec(pipex, argv[i], &name))
-			pipex->had_error |= pipex_argument_error(pipex, name);
+			pipex->had_error |= pipex_argument_error(pipex, argv[i]);
 	}
-	if (access(argv[argc - 1], W_OK) == -1)
+	if (access(argv[argc - 1], W_OK) == -1 && errno != ENOENT)
 		pipex->had_error |= pipex_perror(pipex, argv[argc - 1]);
 	return (pipex->had_error);
 }

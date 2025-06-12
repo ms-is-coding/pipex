@@ -6,7 +6,7 @@
 /*   By: smamalig <smamalig@student.42.fr>                 ⠀⣴⣿⣟⣁⣀⣀⣀⡀⠀⣴⣿⡟⠁⢀⠀   */
 /*                                                         ⠀⠿⠿⠿⠿⠿⣿⣿⡇⠀⣿⣿⣇⣴⣿⠀   */
 /*   Created: 2025/05/26 15:11:05 by smamalig              ⠀⠀⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀   */
-/*   Updated: 2025/06/09 20:21:56 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
+/*   Updated: 2025/06/10 19:27:45 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,14 +84,14 @@ int	main(int argc, char **argv, char **envp)
 	t_pipex	pipex;
 
 	ft_dprintf(2, "Starting pipex\n");
-	// for (int i = 0; argv[i]; i++)
-	// 	ft_dprintf(2, "-> [%s]\n", argv[i]);
+	for (int i = 0; argv[i]; i++)
+		ft_dprintf(2, "-> [%s]\n", argv[i]);
 	ft_memset(&pipex, 0, sizeof(t_pipex));
 	if (argc > 1 && ft_strcmp(argv[1], "here_doc") == 0)
 	{
 		pipex.heredoc = true;
 	}
-	if (argc < 4)
+	if (argc < 4 + pipex.heredoc)
 		return (ft_dprintf(2, INCORRECT_USAGE, argv[0]), 1);
 	if (pipex_init(&pipex, argc, argv, envp))
 		return (pipex_init_failure(argv[0]));
