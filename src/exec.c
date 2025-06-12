@@ -6,7 +6,7 @@
 /*   By: smamalig <smamalig@student.42.fr>                 ⠀⣴⣿⣟⣁⣀⣀⣀⡀⠀⣴⣿⡟⠁⢀⠀   */
 /*                                                         ⠀⠿⠿⠿⠿⠿⣿⣿⡇⠀⣿⣿⣇⣴⣿⠀   */
 /*   Created: 2025/06/07 07:53:15 by smamalig              ⠀⠀⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀   */
-/*   Updated: 2025/06/10 19:21:16 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
+/*   Updated: 2025/06/12 20:33:05 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,26 +18,22 @@
 static void	pipex_dup_io(t_pipex *pipex, int i, int prev_fd, int pipefd[2])
 {
 	if (i == 0)
-	{
 		dup2(pipex->fd_in, STDIN_FILENO);
-		close(pipex->fd_in);
-	}
 	else
 	{
 		dup2(prev_fd, STDIN_FILENO);
 		close(prev_fd);
 	}
 	if (i == pipex->node_count - 1)
-	{
 		dup2(pipex->fd_out, STDOUT_FILENO);
-		close(pipex->fd_out);
-	}
 	else
 	{
 		close(pipefd[0]);
 		dup2(pipefd[1], STDOUT_FILENO);
 		close(pipefd[1]);
 	}
+	close(pipex->fd_in);
+	close(pipex->fd_out);
 }
 
 static int	pipex_child(t_pipex *pipex, int i, int prev_fd, int pipefd[2])

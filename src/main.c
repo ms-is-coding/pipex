@@ -6,7 +6,7 @@
 /*   By: smamalig <smamalig@student.42.fr>                 ⠀⣴⣿⣟⣁⣀⣀⣀⡀⠀⣴⣿⡟⠁⢀⠀   */
 /*                                                         ⠀⠿⠿⠿⠿⠿⣿⣿⡇⠀⣿⣿⣇⣴⣿⠀   */
 /*   Created: 2025/05/26 15:11:05 by smamalig              ⠀⠀⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀   */
-/*   Updated: 2025/06/12 20:20:10 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
+/*   Updated: 2025/06/12 20:31:45 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,7 @@ int	main(int argc, char **argv, char **envp)
 	if (pipex_parse_arguments(&pipex, argc - pipex.here_doc,
 			argv + pipex.here_doc))
 		return (pipex_cleanup(&pipex));
-	if (pipex_here_doc(argv[2]))
+	if (pipex.here_doc && pipex_here_doc(argv[2]))
 		return (pipex_cleanup(&pipex));
 	if (pipex_open_files(&pipex, argc - pipex.here_doc, argv + pipex.here_doc))
 		return (pipex_cleanup(&pipex));
