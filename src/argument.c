@@ -6,7 +6,7 @@
 /*   By: smamalig <smamalig@student.42.fr>                 ⠀⣴⣿⣟⣁⣀⣀⣀⡀⠀⣴⣿⡟⠁⢀⠀   */
 /*                                                         ⠀⠿⠿⠿⠿⠿⣿⣿⡇⠀⣿⣿⣇⣴⣿⠀   */
 /*   Created: 2025/06/06 22:18:50 by smamalig              ⠀⠀⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀   */
-/*   Updated: 2025/06/10 19:26:06 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
+/*   Updated: 2025/06/12 20:14:53 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,15 +21,23 @@ int	pipex_open_files(t_pipex *pipex, int argc, char **argv)
 {
 	int	flags;
 
-	if (!pipex->heredoc)
+	flags = O_WRONLY | O_CREAT;
+	if (pipex->here_doc)
+	{
+		pipex->fd_in = open("/tmp/.pipex_here_doc", O_RDONLY);
+		flags |= O_APPEND;
+	}
+	else
 	{
 		pipex->fd_in = open(argv[1], O_RDONLY);
-		if (pipex->fd_in == -1)
-			return (pipex_perror(pipex, argv[1]));
+		flags |= O_TRUNC;
 	}
-	flags = O_WRONLY | O_CREAT | O_TRUNC;
+	if (pipex->fd_in < 0 && pipex->here_doc)
+		return (pipex_perror(pipex, "/tmp/.pipex_here_doc"));
+	else if (pipex->fd_in == -1)
+		return (pipex_perror(pipex, argv[1]));
 	pipex->fd_out = open(argv[argc - 1], flags, 0644);
-	if (pipex->fd_out == -1)
+	if (pipex->fd_out < 0)
 	{
 		close(pipex->fd_in);
 		pipex_perror(pipex, argv[argc - 1]);
@@ -115,14 +123,14 @@ int	pipex_parse_arguments(t_pipex *pipex, int argc, char **argv)
 	char	*name;
 
 	i = 1;
-	if (!pipex->heredoc && access(argv[i], R_OK) == -1)
+	if (!pipex->here_doc && access(argv[i], R_OK) < 0)
 		pipex->had_error |= pipex_perror(pipex, argv[i]);
 	while (++i < argc - 1)
 	{
 		if (pipex_parse_exec(pipex, argv[i], &name))
 			pipex->had_error |= pipex_argument_error(pipex, argv[i]);
 	}
-	if (access(argv[argc - 1], W_OK) == -1 && errno != ENOENT)
+	if (access(argv[argc - 1], W_OK) < 0 && errno != ENOENT)
 		pipex->had_error |= pipex_perror(pipex, argv[argc - 1]);
 	return (pipex->had_error);
 }

@@ -6,7 +6,7 @@
 /*   By: smamalig <smamalig@student.42.fr>                 ⠀⣴⣿⣟⣁⣀⣀⣀⡀⠀⣴⣿⡟⠁⢀⠀   */
 /*                                                         ⠀⠿⠿⠿⠿⠿⣿⣿⡇⠀⣿⣿⣇⣴⣿⠀   */
 /*   Created: 2025/02/06 23:32:58 by smamalig              ⠀⠀⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀   */
-/*   Updated: 2025/06/12 15:19:08 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
+/*   Updated: 2025/06/12 20:02:43 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 
 # include <stdbool.h>
 # include <stddef.h>
-# include <stdint.h>
 # include <stdlib.h>
 # include <stdarg.h>
 # include <unistd.h>
@@ -29,8 +28,6 @@
 # define FT_GNL_FAILURE -1
 # define FT_GNL_CONTINUE 1
 
-char	*get_next_line(int fd, _Bool force_eof);
-
 typedef struct s_reader
 {
 	int				fd;
@@ -39,6 +36,8 @@ typedef struct s_reader
 	struct s_reader	*next;
 	char			buf[BUFFER_SIZE];
 }	t_reader;
+
+char	*get_next_line(int fd, _Bool force_eof);
 
 int		ft_printf(const char *fmt, ...)
 		__attribute__((format (printf, 1, 2)));

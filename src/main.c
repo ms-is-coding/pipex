@@ -6,7 +6,7 @@
 /*   By: smamalig <smamalig@student.42.fr>                 ⠀⣴⣿⣟⣁⣀⣀⣀⡀⠀⣴⣿⡟⠁⢀⠀   */
 /*                                                         ⠀⠿⠿⠿⠿⠿⣿⣿⡇⠀⣿⣿⣇⣴⣿⠀   */
 /*   Created: 2025/05/26 15:11:05 by smamalig              ⠀⠀⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀   */
-/*   Updated: 2025/06/10 19:27:45 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
+/*   Updated: 2025/06/12 20:20:10 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,22 +43,9 @@ int	pipex_parse_env(t_pipex *pipex, char **envp)
 int	pipex_init(t_pipex *pipex, int argc, char **argv, char **envp)
 {
 	pipex->envp = envp;
-	pipex->nodes = ft_calloc(argc - pipex->heredoc, sizeof(t_pipex_exec));
+	pipex->nodes = ft_calloc(argc - 3 - pipex->here_doc, sizeof(t_pipex_exec));
 	pipex->name = argv[0];
 	return (0);
-}
-
-int	pipex_env_cleanup(t_pipex *pipex)
-{
-	int	i;
-
-	i = -1;
-	while (pipex->path && pipex->path[++i])
-		free(pipex->path[i]);
-	free(pipex->path);
-	free(pipex->home);
-	free(pipex->nodes);
-	return (1);
 }
 
 int	pipex_cleanup(t_pipex *pipex)
@@ -75,31 +62,61 @@ int	pipex_cleanup(t_pipex *pipex)
 		free(pipex->nodes[i].argv);
 		free(pipex->nodes[i].file);
 	}
-	pipex_env_cleanup(pipex);
+	i = -1;
+	while (pipex->path && pipex->path[++i])
+		free(pipex->path[i]);
+	free(pipex->path);
+	free(pipex->home);
+	free(pipex->nodes);
 	return (1);
+}
+
+static int	pipex_here_doc(const char *limiter)
+{
+	char	*line;
+	int		fd;
+
+	line = NULL;
+	fd = open("/tmp/.pipex_here_doc", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (fd < 0)
+		return (-1);
+	while (1)
+	{
+		ft_printf("> ");
+		line = get_next_line(0, false);
+		if (!line)
+			break ;
+		if (ft_strncmp(line, limiter, ft_strlen(limiter)) == 0
+			&& line[ft_strlen(limiter)] == '\n')
+			break ;
+		ft_dprintf(fd, "%s", line);
+		free(line);
+	}
+	free(line);
+	get_next_line(0, true);
+	close(fd);
+	return (0);
 }
 
 int	main(int argc, char **argv, char **envp)
 {
 	t_pipex	pipex;
 
-	ft_dprintf(2, "Starting pipex\n");
-	for (int i = 0; argv[i]; i++)
-		ft_dprintf(2, "-> [%s]\n", argv[i]);
 	ft_memset(&pipex, 0, sizeof(t_pipex));
-	if (argc > 1 && ft_strcmp(argv[1], "here_doc") == 0)
-	{
-		pipex.heredoc = true;
-	}
-	if (argc < 4 + pipex.heredoc)
+	if (argc > 2 && ft_strcmp(argv[1], "here_doc") == 0)
+		pipex.here_doc = true;
+	if (argc < 5 + pipex.here_doc)
 		return (ft_dprintf(2, INCORRECT_USAGE, argv[0]), 1);
 	if (pipex_init(&pipex, argc, argv, envp))
 		return (pipex_init_failure(argv[0]));
 	if (pipex_parse_env(&pipex, envp))
-		return (pipex_env_cleanup(&pipex), pipex_invalid_env(argv[0]));
-	if (pipex_parse_arguments(&pipex, argc - pipex.heredoc, argv + pipex.heredoc))
+		return (pipex_cleanup(&pipex), pipex_invalid_env(argv[0]));
+	if (pipex_parse_arguments(&pipex, argc - pipex.here_doc,
+			argv + pipex.here_doc))
 		return (pipex_cleanup(&pipex));
-	if (pipex_open_files(&pipex, argc - pipex.heredoc, argv + pipex.heredoc))
+	if (pipex_here_doc(argv[2]))
+		return (pipex_cleanup(&pipex));
+	if (pipex_open_files(&pipex, argc - pipex.here_doc, argv + pipex.here_doc))
 		return (pipex_cleanup(&pipex));
 	pipex_exec(&pipex);
 	pipex_cleanup(&pipex);
