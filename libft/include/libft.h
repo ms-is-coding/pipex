@@ -6,7 +6,7 @@
 /*   By: smamalig <smamalig@student.42.fr>                 ⠀⣴⣿⣟⣁⣀⣀⣀⡀⠀⣴⣿⡟⠁⢀⠀   */
 /*                                                         ⠀⠿⠿⠿⠿⠿⣿⣿⡇⠀⣿⣿⣇⣴⣿⠀   */
 /*   Created: 2025/02/06 23:32:58 by smamalig              ⠀⠀⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀   */
-/*   Updated: 2025/06/08 18:40:48 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
+/*   Updated: 2025/06/12 15:19:08 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,10 +18,27 @@
 # include <stdint.h>
 # include <stdlib.h>
 # include <stdarg.h>
-# include <time.h>
 # include <unistd.h>
+# include <fcntl.h>
 
-// Enjoy this very thread-safe printf :)
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 1024
+# endif
+
+# define FT_GNL_SUCCESS 0
+# define FT_GNL_FAILURE -1
+# define FT_GNL_CONTINUE 1
+
+char	*get_next_line(int fd, _Bool force_eof);
+
+typedef struct s_reader
+{
+	int				fd;
+	char			*end;
+	char			*curr;
+	struct s_reader	*next;
+	char			buf[BUFFER_SIZE];
+}	t_reader;
 
 int		ft_printf(const char *fmt, ...)
 		__attribute__((format (printf, 1, 2)));
@@ -48,8 +65,10 @@ int		ft_vsnprintf(char *dst, size_t size, const char *fmt, va_list ap);
 // int ft_vfprintf(FILE *stream, const char *fmt, va_list ap);
 
 void	*ft_calloc(size_t n, size_t size);
+void	*ft_realloc(void *ptr, size_t old_sz, size_t new_sz);
 void	*ft_malloc(size_t size);
 void	*ft_memcpy(void *dst, const void *src, size_t n);
+void	*ft_memchr(const void *s, int c, size_t n);
 void	*ft_mempcpy(void *dst, const void *src, size_t n);
 void	*ft_memset(void *s, int c, size_t n);
 char	*ft_stpcpy(char *dst, const char *src);

@@ -5,19 +5,14 @@
 /*                                                         ⠀⠀⢀⣴⣿⠟⠁⠀⠀⠀⠁⢀⣼⣿⠟⠀   */
 /*   By: smamalig <smamalig@student.42.fr>                 ⠀⣴⣿⣟⣁⣀⣀⣀⡀⠀⣴⣿⡟⠁⢀⠀   */
 /*                                                         ⠀⠿⠿⠿⠿⠿⣿⣿⡇⠀⣿⣿⣇⣴⣿⠀   */
-/*   Created: 2025/06/08 18:47:22 by smamalig              ⠀⠀⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀   */
-/*   Updated: 2025/06/08 18:47:30 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
+/*   Created: 2025/04/11 15:29:23 by smamalig              ⠀⠀⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀   */
+/*   Updated: 2025/06/12 15:16:39 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "libft.h"
 #include <fcntl.h>
 #include <unistd.h>
-#include <stdlib.h>
-
-void	*ft_mempcpy(void *dst, const void *src, size_t n);
-void	*ft_memchr(const void *s, int c, size_t n);
-void	*ft_realloc(void *ptr, int old_sz, int new_sz);
 
 static void	destroy_reader(t_reader **head, int fd)
 {
@@ -103,7 +98,7 @@ static int	gnl_int(t_reader **head, t_reader *r, char **line, int *line_len)
 	return (FT_GNL_CONTINUE);
 }
 
-char	*get_next_line(int fd)
+char	*get_next_line(int fd, _Bool force_eof)
 {
 	static t_reader	*head = NULL;
 	t_reader		*r;
@@ -117,14 +112,13 @@ char	*get_next_line(int fd)
 	r = get_reader(&head, fd);
 	if (!r)
 		return (NULL);
+	if (force_eof)
+		return (destroy_reader(&head, fd), NULL);
 	while (1)
 	{
 		result = gnl_int(&head, r, &line, &line_len);
 		if (result == FT_GNL_FAILURE)
-		{
-			free(line);
-			return (NULL);
-		}
+			return (free(line), NULL);
 		else if (result == FT_GNL_SUCCESS)
 			return (line);
 	}
