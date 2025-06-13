@@ -6,7 +6,7 @@
 /*   By: smamalig <smamalig@student.42.fr>                 ⠀⣴⣿⣟⣁⣀⣀⣀⡀⠀⣴⣿⡟⠁⢀⠀   */
 /*                                                         ⠀⠿⠿⠿⠿⠿⣿⣿⡇⠀⣿⣿⣇⣴⣿⠀   */
 /*   Created: 2025/05/26 15:11:05 by smamalig              ⠀⠀⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀   */
-/*   Updated: 2025/06/12 20:31:45 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
+/*   Updated: 2025/06/13 08:21:24 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 #include <sys/fcntl.h>
 #include <unistd.h>
 
-int	pipex_parse_env(t_pipex *pipex, char **envp)
+void	pipex_parse_env(t_pipex *pipex, char **envp)
 {
 	while (*envp)
 	{
@@ -35,9 +35,6 @@ int	pipex_parse_env(t_pipex *pipex, char **envp)
 		}
 		envp++;
 	}
-	if (!pipex->path)
-		return (1);
-	return (0);
 }
 
 int	pipex_init(t_pipex *pipex, int argc, char **argv, char **envp)
@@ -106,11 +103,10 @@ int	main(int argc, char **argv, char **envp)
 	if (argc > 2 && ft_strcmp(argv[1], "here_doc") == 0)
 		pipex.here_doc = true;
 	if (argc < 5 + pipex.here_doc)
-		return (ft_dprintf(2, INCORRECT_USAGE, argv[0]), 1);
+		return (ft_dprintf(2, USAGE HEREDOC_USAGE, argv[0], argv[0]), 1);
 	if (pipex_init(&pipex, argc, argv, envp))
 		return (pipex_init_failure(argv[0]));
-	if (pipex_parse_env(&pipex, envp))
-		return (pipex_cleanup(&pipex), pipex_invalid_env(argv[0]));
+	pipex_parse_env(&pipex, envp);
 	if (pipex_parse_arguments(&pipex, argc - pipex.here_doc,
 			argv + pipex.here_doc))
 		return (pipex_cleanup(&pipex));

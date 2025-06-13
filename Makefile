@@ -6,14 +6,14 @@
 #    By: smamalig <smamalig@student.42.fr>                 ⠀⣴⣿⣟⣁⣀⣀⣀⡀⠀⣴⣿⡟⠁⢀⠀    #
 #                                                          ⠀⠿⠿⠿⠿⠿⣿⣿⡇⠀⣿⣿⣇⣴⣿⠀    #
 #    Created: 2025/05/26 15:05:17 by smamalig              ⠀⠀⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀    #
-#    Updated: 2025/06/09 15:12:55 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀    #
+#    Updated: 2025/06/13 08:17:16 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀    #
 #                                                                              #
 # **************************************************************************** #
 
 NAME        = pipex
 CC          = cc
 CFLAGS      = -Wall -Wextra -MMD -MP
-SRC_FILES   = main.c tokenize.c error.c exec_error.c argument.c exec.c
+SRC_FILES   = main.c tokenize.c error.c argument.c exec.c
 SRC_DIR     = src
 OBJ_DIR     = obj
 SRCS       := $(addprefix $(SRC_DIR)/, $(SRC_FILES))
