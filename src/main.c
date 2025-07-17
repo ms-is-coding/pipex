@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                         ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
-/*   main.c                                                ⠀⠀⠀⠀⢀⣴⣿⠟⠁ ⣿⠟⢹⣿⣿⠀   */
-/*                                                         ⠀⠀⢀⣴⣿⠟⠁⠀⠀⠀⠁⢀⣼⣿⠟⠀   */
-/*   By: smamalig <smamalig@student.42.fr>                 ⠀⣴⣿⣟⣁⣀⣀⣀⡀⠀⣴⣿⡟⠁⢀⠀   */
-/*                                                         ⠀⠿⠿⠿⠿⠿⣿⣿⡇⠀⣿⣿⣇⣴⣿⠀   */
-/*   Created: 2025/05/26 15:11:05 by smamalig              ⠀⠀⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀   */
-/*   Updated: 2025/06/13 08:21:24 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: smamalig <smamalig@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/05/26 15:11:05 by smamalig          #+#    #+#             */
+/*   Updated: 2025/07/11 15:56:13 by smamalig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 #include <sys/fcntl.h>
 #include <unistd.h>
 
-void	pipex_parse_env(t_pipex *pipex, char **envp)
+static void	pipex_parse_env(t_pipex *pipex, char **envp)
 {
 	while (*envp)
 	{
@@ -37,31 +37,33 @@ void	pipex_parse_env(t_pipex *pipex, char **envp)
 	}
 }
 
-int	pipex_init(t_pipex *pipex, int argc, char **argv, char **envp)
+static int	pipex_init(t_pipex *pipex, int argc, char **argv, char **envp)
 {
 	pipex->envp = envp;
-	pipex->nodes = ft_calloc(argc - 3 - pipex->here_doc, sizeof(t_pipex_exec));
+	pipex->nodes = ft_calloc((size_t)(argc - 3 - pipex->here_doc),
+			sizeof(t_pipex_exec));
+	if (!pipex->nodes)
+		return (1);
 	pipex->name = argv[0];
 	return (0);
 }
 
 int	pipex_cleanup(t_pipex *pipex)
 {
-	int	i;
-	int	j;
-
-	i = -1;
+	auto int i = -1;
 	while (++i < pipex->node_count)
 	{
-		j = -1;
-		while (pipex->nodes[i].argv[++j])
-			free(pipex->nodes[i].argv[j]);
+		auto int j = -1;
+		if (pipex->nodes[i].argv)
+			while (pipex->nodes[i].argv[++j])
+				free(pipex->nodes[i].argv[j]);
 		free(pipex->nodes[i].argv);
 		free(pipex->nodes[i].file);
 	}
 	i = -1;
-	while (pipex->path && pipex->path[++i])
-		free(pipex->path[i]);
+	if (pipex->path)
+		while (pipex->path[++i])
+			free(pipex->path[i]);
 	free(pipex->path);
 	free(pipex->home);
 	free(pipex->nodes);
@@ -75,7 +77,7 @@ static int	pipex_here_doc(const char *limiter)
 
 	line = NULL;
 	fd = open("/tmp/.pipex_here_doc", O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (fd < 0)
+	if (fd == -1)
 		return (-1);
 	while (1)
 	{
@@ -98,6 +100,7 @@ static int	pipex_here_doc(const char *limiter)
 int	main(int argc, char **argv, char **envp)
 {
 	t_pipex	pipex;
+	int		exit_code;
 
 	ft_memset(&pipex, 0, sizeof(t_pipex));
 	if (argc > 2 && ft_strcmp(argv[1], "here_doc") == 0)
@@ -107,14 +110,11 @@ int	main(int argc, char **argv, char **envp)
 	if (pipex_init(&pipex, argc, argv, envp))
 		return (pipex_init_failure(argv[0]));
 	pipex_parse_env(&pipex, envp);
-	if (pipex_parse_arguments(&pipex, argc - pipex.here_doc,
-			argv + pipex.here_doc))
-		return (pipex_cleanup(&pipex));
-	if (pipex.here_doc && pipex_here_doc(argv[2]))
-		return (pipex_cleanup(&pipex));
-	if (pipex_open_files(&pipex, argc - pipex.here_doc, argv + pipex.here_doc))
-		return (pipex_cleanup(&pipex));
-	pipex_exec(&pipex);
+	pipex_parse_arguments(&pipex, argc - pipex.here_doc, argv + pipex.here_doc);
+	if (pipex.here_doc)
+		pipex_here_doc(argv[2]);
+	pipex_open_files(&pipex, argc - pipex.here_doc, argv + pipex.here_doc);
+	exit_code = pipex_exec(&pipex);
 	pipex_cleanup(&pipex);
-	return (0);
+	return (exit_code);
 }

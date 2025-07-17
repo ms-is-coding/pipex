@@ -1,12 +1,12 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    Makefile                                              ⠀⠀⠀⠀⢀⣴⣿⠟⠁ ⣿⠟⢹⣿⣿⠀    #
+#    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: smamalig <smamalig@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/02/13 21:10:40 by smamalig          #+#    #+#              #
-#    Updated: 2025/06/12 15:16:20 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀    #
+#    Updated: 2025/07/17 08:29:57 by smamalig         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,7 @@ PRINTF_SRCS = conversion.c dprintf.c format.c handlers.c parse_format.c \
 	save_pos.c snprintf.c sprintf.c strerror.c util.c util2.c vdprintf.c \
 	vprintf.c vsnprintf.c vsprintf.c
 SRC_FILES   = calloc.c malloc.c memcpy.c mempcpy.c memset.c split.c stpcpy.c \
-	strcpy.c strdup.c strlen.c strncmp.c strcmp.c memchr.c realloc.c \
+	strcpy.c strdup.c strlen.c strncmp.c strcmp.c memchr.c realloc.c strchr.c \
 	get_next_line.c $(addprefix printf/, $(PRINTF_SRCS))
 SRCS        = $(addprefix $(SRC_DIR)/, $(SRC_FILES))
 OBJS        = $(patsubst $(SRC_DIR)/%.c, ${OBJ_DIR}/%.o, $(SRCS))

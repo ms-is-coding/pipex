@@ -1,12 +1,12 @@
 # **************************************************************************** #
 #                                                                              #
-#                                                          ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀    #
-#    Makefile                                              ⠀⠀⠀⠀⢀⣴⣿⠟⠁ ⣿⠟⢹⣿⣿⠀    #
-#                                                          ⠀⠀⢀⣴⣿⠟⠁⠀⠀⠀⠁⢀⣼⣿⠟⠀    #
-#    By: smamalig <smamalig@student.42.fr>                 ⠀⣴⣿⣟⣁⣀⣀⣀⡀⠀⣴⣿⡟⠁⢀⠀    #
-#                                                          ⠀⠿⠿⠿⠿⠿⣿⣿⡇⠀⣿⣿⣇⣴⣿⠀    #
-#    Created: 2025/05/26 15:05:17 by smamalig              ⠀⠀⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀    #
-#    Updated: 2025/06/13 08:17:16 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀    #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: smamalig <smamalig@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2025/05/26 15:05:17 by smamalig          #+#    #+#              #
+#    Updated: 2025/07/17 08:49:40 by smamalig         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,16 +29,18 @@ MAGENTA     = \e[35m
 CYAN        = \e[36m
 RESET       = \e[m
 
-LIBFT       = libft
 LIBFT_FLAGS = -Llibft -lft
 LIBFT_DIR   = ./libft
 
 LDFLAGS = $(LIBFT_FLAGS)
 
 ifeq ($(DEBUG), 1)
-	CFLAGS += -Wpedantic -O0 -g3
+	CFLAGS += -O0 -g3 -D_DEBUG \
+			  -Wpedantic -Wpacked -Wstrict-prototypes -Wshadow \
+			  -Wconversion -Wmissing-prototypes -Wmissing-declarations \
+			  -Wold-style-definition # -fsanitize=address -fsanitize=undefined
 else
-	CFLAGS += -Werror
+	CFLAGS += -O3 -DNDEBUG -Werror -march=native -flto
 endif
 
 all: $(NAME)
@@ -47,16 +49,16 @@ all: $(NAME)
 
 bonus: $(NAME)
 
-$(NAME): $(LIBFT) $(OBJS)
+$(NAME): $(LIBFT_DIR)/libft.a $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) $(LDFLAGS) -o $(NAME)
 	@printf "$(BLUE)%s$(RESET): $(YELLOW)Building$(RESET) $(NAME)\n" $(NAME)
-	@$(CC) $(CFLAGS) $(OBJS) $(LDFLAGS) -o $(NAME)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@)
 	@printf "$(BLUE)%s$(RESET): $(MAGENTA)Compiling$(RESET) $<\n" $(NAME)
 	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
-$(LIBFT):
+$(LIBFT_DIR)/libft.a:
 	@make -C $(LIBFT_DIR) USE_ERRNO=1 --no-print-directory
 
 clean:

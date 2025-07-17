@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                         ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
-/*   argument.c                                            ⠀⠀⠀⠀⢀⣴⣿⠟⠁ ⣿⠟⢹⣿⣿⠀   */
-/*                                                         ⠀⠀⢀⣴⣿⠟⠁⠀⠀⠀⠁⢀⣼⣿⠟⠀   */
-/*   By: smamalig <smamalig@student.42.fr>                 ⠀⣴⣿⣟⣁⣀⣀⣀⡀⠀⣴⣿⡟⠁⢀⠀   */
-/*                                                         ⠀⠿⠿⠿⠿⠿⣿⣿⡇⠀⣿⣿⣇⣴⣿⠀   */
-/*   Created: 2025/06/06 22:18:50 by smamalig              ⠀⠀⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀   */
-/*   Updated: 2025/06/13 08:16:03 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
+/*                                                        :::      ::::::::   */
+/*   argument.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: smamalig <smamalig@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/06 22:18:50 by smamalig          #+#    #+#             */
+/*   Updated: 2025/07/17 08:51:06 by smamalig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
-int	pipex_open_files(t_pipex *pipex, int argc, char **argv)
+void	pipex_open_files(t_pipex *pipex, int argc, char **argv)
 {
 	int	flags;
 
@@ -32,18 +32,9 @@ int	pipex_open_files(t_pipex *pipex, int argc, char **argv)
 		pipex->fd_in = open(argv[1], O_RDONLY);
 		flags |= O_TRUNC;
 	}
-	if (pipex->fd_in < 0 && pipex->here_doc)
-		return (pipex_perror(pipex, "/tmp/.pipex_here_doc"));
-	else if (pipex->fd_in == -1)
-		return (pipex_perror(pipex, argv[1]));
 	pipex->fd_out = open(argv[argc - 1], flags, 0644);
 	if (pipex->fd_out < 0)
-	{
 		close(pipex->fd_in);
-		pipex_perror(pipex, argv[argc - 1]);
-		return (1);
-	}
-	return (0);
 }
 
 char	*pipex_get_bin(t_pipex *pipex, char *arg)
@@ -53,12 +44,14 @@ char	*pipex_get_bin(t_pipex *pipex, char *arg)
 	size_t	len;
 
 	i = -1;
-	if (!pipex->path)
+	if (!pipex->path || !arg)
 		return (NULL);
 	while (pipex->path[++i])
 	{
 		len = ft_strlen(pipex->path[i]) + ft_strlen(arg) + 2;
-		path = malloc(len);
+		path = ft_malloc(len);
+		if (!path)
+			return (NULL);
 		ft_snprintf(path, len, "%s/%s", pipex->path[i], arg);
 		if (access(path, X_OK) == 0)
 			return (path);
@@ -67,10 +60,10 @@ char	*pipex_get_bin(t_pipex *pipex, char *arg)
 	return (NULL);
 }
 
-int	pipex_expand_home(t_pipex *pipex, char **argv)
+static int	pipex_expand_home(t_pipex *pipex, char **argv)
 {
 	char	*tmp;
-	int		len;
+	size_t	len;
 
 	if (!pipex->home)
 		return (0);
@@ -94,45 +87,44 @@ int	pipex_expand_home(t_pipex *pipex, char **argv)
 	return (0);
 }
 
-int	pipex_parse_exec(t_pipex *pipex, char *arg, char **name)
+static int	pipex_parse_exec(t_pipex *pipex, char *arg)
 {
 	t_pipex_exec	*exec;
+	const int		argv_len = pipex_tokenize(arg, NULL);
 
 	exec = pipex->nodes + pipex->node_count++;
-	exec->argv = ft_calloc(pipex_tokenize(arg, NULL), sizeof(char *));
-	pipex_tokenize(arg, exec->argv);
+	exec->argv = ft_calloc((size_t)argv_len, sizeof(char *));
+	if (!exec->argv || pipex_tokenize(arg, exec->argv) != argv_len)
+		return (1);
 	if (!exec->argv[0])
 	{
 		free(exec->argv);
 		exec->argv = ft_calloc(2, sizeof(char *));
+		if (!exec->argv)
+			return (1);
 		exec->argv[0] = ft_strdup("/bin/true");
 	}
-	*name = exec->argv[0];
 	if (pipex_expand_home(pipex, exec->argv))
 		return (1);
-	if (access(exec->argv[0], X_OK) == 0)
-		exec->file = ft_strdup(exec->argv[0]);
+	if (exec->argv[0] && ft_strchr(exec->argv[0], '/'))
+	{
+		if (access(exec->argv[0], X_OK) == 0)
+			exec->file = ft_strdup(exec->argv[0]);
+	}
 	else
 		exec->file = pipex_get_bin(pipex, exec->argv[0]);
-	if (!exec->file)
-		return (1);
 	return (0);
 }
 
-int	pipex_parse_arguments(t_pipex *pipex, int argc, char **argv)
+void	pipex_parse_arguments(t_pipex *pipex, int argc, char **argv)
 {
-	int		i;
-	char	*name;
+	int	i;
 
 	i = 1;
-	if (!pipex->here_doc && access(argv[i], R_OK) < 0)
-		pipex->had_error |= pipex_perror(pipex, argv[i]);
+	if (!pipex->here_doc && access(argv[i], R_OK) == -1)
+		pipex_perror(pipex, argv[i]);
 	while (++i < argc - 1)
-	{
-		if (pipex_parse_exec(pipex, argv[i], &name))
-			pipex->had_error |= pipex_argument_error(pipex, argv[i]);
-	}
+		pipex_parse_exec(pipex, argv[i]);
 	if (access(argv[argc - 1], W_OK) < 0 && errno != ENOENT)
-		pipex->had_error |= pipex_perror(pipex, argv[argc - 1]);
-	return (pipex->had_error);
+		pipex_perror(pipex, argv[argc - 1]);
 }

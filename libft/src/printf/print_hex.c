@@ -6,7 +6,7 @@
 /*   By: smamalig <smamalig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/27 18:34:46 by smamalig          #+#    #+#             */
-/*   Updated: 2025/05/16 10:49:16 by smamalig         ###   ########.fr       */
+/*   Updated: 2025/07/09 17:30:28 by smamalig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,10 @@ void	__ft_printf_hex(t_printf_parser *p, uintmax_t n, int mask)
 void	__ft_printf_pointer(t_printf_parser *p, const void *ptr)
 {
 	if (!ptr)
-		return (__ft_printf_str(p, "(nil)"));
+	{
+		__ft_printf_str(p, "(nil)");
+		return ;
+	}
 	p->flags |= PRINTF_FLAG_ALTERNATE;
 	__ft_printf_hex(p, (size_t)ptr, 0x20);
 }

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                         ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
-/*   tokenize.c                                            ⠀⠀⠀⠀⢀⣴⣿⠟⠁ ⣿⠟⢹⣿⣿⠀   */
-/*                                                         ⠀⠀⢀⣴⣿⠟⠁⠀⠀⠀⠁⢀⣼⣿⠟⠀   */
-/*   By: smamalig <smamalig@student.42.fr>                 ⠀⣴⣿⣟⣁⣀⣀⣀⡀⠀⣴⣿⡟⠁⢀⠀   */
-/*                                                         ⠀⠿⠿⠿⠿⠿⣿⣿⡇⠀⣿⣿⣇⣴⣿⠀   */
-/*   Created: 2025/06/06 19:16:02 by smamalig              ⠀⠀⠀⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀   */
-/*   Updated: 2025/06/09 15:47:46 by smamalig              ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   */
+/*                                                        :::      ::::::::   */
+/*   tokenize.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: smamalig <smamalig@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/06 19:16:02 by smamalig          #+#    #+#             */
+/*   Updated: 2025/07/17 08:53:11 by smamalig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,10 +18,10 @@ static int	alloc_sub(const char *s, const char *start, int i, char **collector)
 {
 	if (!collector)
 		return (0);
-	collector[i] = malloc(s - start + 1);
+	collector[i] = malloc((size_t)(s - start) + 1);
 	if (!collector[i])
 		return (1);
-	ft_memcpy(collector[i], start, s - start);
+	ft_memcpy(collector[i], start, (size_t)(s - start));
 	collector[i][s - start] = 0;
 	return (0);
 }
@@ -54,12 +54,11 @@ static inline int	should_start(char *s)
 
 int	pipex_tokenize(char *s, char **collector)
 {
+	const char	*start = NULL;
 	int			count;
-	const char	*start;
 	char		quote;
 
 	count = 0;
-	start = NULL;
 	quote = 0;
 	while (1)
 	{
@@ -67,7 +66,8 @@ int	pipex_tokenize(char *s, char **collector)
 			start = s + should_start(s);
 		else if (start && ((!quote && (*s == ' ' || !*s)) || *s == quote))
 		{
-			alloc_sub(s, start, count, collector);
+			if (alloc_sub(s, start, count, collector))
+				return (count);
 			count++;
 			start = NULL;
 		}
