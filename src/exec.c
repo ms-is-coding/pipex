@@ -6,13 +6,14 @@
 /*   By: smamalig <smamalig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/07 07:53:15 by smamalig          #+#    #+#             */
-/*   Updated: 2025/07/17 08:52:42 by smamalig         ###   ########.fr       */
+/*   Updated: 2025/07/22 13:31:14 by smamalig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 #include "libft.h"
 #include <errno.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -69,11 +70,12 @@ static int	pipex_child(t_pipex *pipex, int i, int prev_fd, int pipefd[2])
 
 static int	pipex_spawn(t_pipex *pipex, int i, int prev_fd)
 {
-	int	pipefd[2];
+	int		pipefd[2];
+	pid_t	pid;
 
 	if (i < pipex->node_count - 1 && pipe(pipefd) < 0)
 		return (pipex_pipe_error(pipex->name));
-	auto pid_t pid = fork();
+	pid = fork();
 	pipex->last_pid = pid;
 	if (pid == -1)
 		return (pipex_fork_error(pipex->name, pipefd));
